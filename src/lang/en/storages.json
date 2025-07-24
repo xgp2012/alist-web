@@ -36,7 +36,8 @@
       "back": "Extract to back"
     },
     "enable_sign": "Enable sign",
-    "disable_index": "Disable index"
+    "disable_index": "Disable index",
+    "base_path": "Base path"
   },
   "other": {
     "start_load_success": "Start loading",

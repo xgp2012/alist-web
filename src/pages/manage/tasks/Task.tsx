@@ -60,7 +60,7 @@ const Creator = (props: { name: string; role: number }) => {
       css={{
         overflow: "hidden",
         whiteSpace: "nowrap",
-        textOverflow: "ellipsis",
+        text: "ellipsis",
       }}
     >
       {props.name}
@@ -89,9 +89,13 @@ export const cols: TaskCol[] = [
   {
     name: "name",
     textAlign: "left",
-    w: me().role === 2 ? "calc(100% - 660px)" : "calc(100% - 560px)",
+    w: me().role.includes(2) ? "calc(100% - 660px)" : "calc(100% - 560px)",
   },
-  { name: "creator", textAlign: "center", w: me().role === 2 ? "100px" : "0" },
+  {
+    name: "creator",
+    textAlign: "center",
+    w: me().role.includes(2) ? "100px" : "0",
+  },
   { name: "state", textAlign: "center", w: "100px" },
   { name: "progress", textAlign: "left", w: "140px" },
   { name: "speed", textAlign: "center", w: "100px" },
@@ -205,7 +209,7 @@ export const Task = (props: TaskAttribute & TasksProps & TaskLocalSetter) => {
             {title}
           </Heading>
         </HStack>
-        <Show when={me().role === 2}>
+        <Show when={me().role.includes(2)}>
           <Center w={cols[1].w}>
             <Creator name={props.creator} role={props.creator_role} />
           </Center>

@@ -1,0 +1,15 @@
+.hope-checkbox {
+  cursor: default !important;
+}
+
+.hope-checkbox * {
+  cursor: default !important;
+}
+
+.hope-checkbox__control {
+  cursor: default !important;
+}
+
+.hope-checkbox__input {
+  cursor: default !important;
+}

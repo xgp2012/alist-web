@@ -5,6 +5,7 @@ import { Error, FullScreenLoading } from "~/components"
 import App from "./App"
 import { i18n } from "./i18n"
 import { globalStyles, theme } from "./theme"
+import "../styles.css"
 
 const Index = () => {
   globalStyles()

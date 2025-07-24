@@ -32,6 +32,22 @@ const hide_routes: Route[] = [
     component: lazy(() => import("./metas/AddOrEdit")),
   },
   {
+    to: "/permissions/add",
+    component: lazy(() => import("./permissions/AddOrEdit")),
+  },
+  {
+    to: "/permissions/config/edit/:id",
+    component: lazy(() => import("./permissions/PermissionForm")),
+  },
+  {
+    to: "/permissions/config/add",
+    component: lazy(() => import("./permissions/PermissionForm")),
+  },
+  {
+    to: "/permissions/edit/:id",
+    component: lazy(() => import("./permissions/AddOrEdit")),
+  },
+  {
     to: "/2fa",
     component: lazy(() => import("./users/2fa")),
   },

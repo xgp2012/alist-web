@@ -2,7 +2,25 @@
   "obj": {
     "name": "Name",
     "size": "Size",
+    "tag": "Tag",
     "modified": "Modified"
+  },
+  "tag": {
+    "add": "Add Tag",
+    "edit": "Edit Tag",
+    "name": "Tag Name",
+    "color": "Tag Color",
+    "create_time": "Create Time",
+    "description": "Tag Description",
+    "name_required": "Please input tag name",
+    "create_success": "Create tag successfully",
+    "create_failed": "Create tag failed",
+    "select": "Please select tag",
+    "tag": "Tag",
+    "new": "New Tag",
+    "bind_success": "Bind tag successfully",
+    "bind_failed": "Bind tag failed",
+    "related_files": "Related Files"
   },
   "preview": {
     "download": "Download",
@@ -25,6 +43,9 @@
   "load_more": "Load more",
   "no_more": "No more",
   "input_password": "Please input password",
+  "selected": "Selected",
+  "selected_count": "item",
+  "total_size": "Total size:",
   "toolbar": {
     "more": "More",
     "refresh": "Refresh",

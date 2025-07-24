@@ -30,20 +30,28 @@ import {
   JSXElement,
 } from "solid-js"
 import { useFetch, useT, useUtil } from "~/hooks"
-import { getMainColor, password } from "~/store"
+import { getMainColor, password, me } from "~/store"
 import { Obj } from "~/types"
 import {
   pathBase,
   handleResp,
   hoverColor,
   pathJoin,
-  fsDirs,
+  fsList,
   createMatcher,
 } from "~/utils"
+import { useRouter } from "~/hooks"
+
+// 添加权限路径类型
+interface PermPath {
+  path: string
+  permission: number
+}
 
 export type FolderTreeHandler = {
   setPath: Setter<string>
 }
+
 export interface FolderTreeProps {
   onChange: (path: string) => void
   forceRoot?: boolean
@@ -51,14 +59,32 @@ export interface FolderTreeProps {
   handle?: (handler: FolderTreeHandler) => void
   showEmptyIcon?: boolean
   showHiddenFolder?: boolean
+  defaultValue?: string
 }
+
 interface FolderTreeContext extends Omit<FolderTreeProps, "handle"> {
   value: Accessor<string>
+  permPaths?: PermPath[]
 }
+
 const context = createContext<FolderTreeContext>()
+
+// 检查路径是否在权限范围内
+const isPathInPermissions = (path: string, permPaths: PermPath[]) => {
+  return permPaths.some((perm) => {
+    // 如果是权限路径本身或其子路径
+    return path === perm.path || path.startsWith(perm.path + "/")
+  })
+}
+
 export const FolderTree = (props: FolderTreeProps) => {
-  const [path, setPath] = createSignal("/")
-  props.handle?.({ setPath })
+  const [path, setPath] = createSignal(props.defaultValue ?? "/")
+  const permPaths = me().permissions || []
+  const userRole = me().role || []
+
+  // 判断是否为管理员（role包含2）
+  const isAdmin = userRole.includes(2)
+
   return (
     <Box class="folder-tree-box" w="$full" overflowX="auto">
       <context.Provider
@@ -72,15 +98,23 @@ export const FolderTree = (props: FolderTreeProps) => {
           forceRoot: props.forceRoot ?? false,
           showEmptyIcon: props.showEmptyIcon ?? false,
           showHiddenFolder: props.showHiddenFolder ?? true,
+          permPaths: permPaths,
         }}
       >
-        <FolderTreeNode path="/" />
+        <Show when={isAdmin}>
+          <FolderTreeNode path="/" isRoot />
+        </Show>
+        <Show when={!isAdmin && permPaths.length > 0}>
+          <For each={permPaths}>
+            {(perm) => <FolderTreeNode path={perm.path} isRoot />}
+          </For>
+        </Show>
       </context.Provider>
     </Box>
   )
 }
 
-const FolderTreeNode = (props: { path: string }) => {
+const FolderTreeNode = (props: { path: string; isRoot?: boolean }) => {
   const { isHidePath } = useUtil()
   const [children, setChildren] = createSignal<Obj[]>()
   const {
@@ -90,30 +124,50 @@ const FolderTreeNode = (props: { path: string }) => {
     autoOpen,
     showEmptyIcon,
     showHiddenFolder,
+    permPaths = [],
   } = useContext(context)!
+
   const emptyIconVisible = () =>
     Boolean(showEmptyIcon && children() !== undefined && !children()?.length)
-  const [loading, fetchDirs] = useFetch(() =>
-    fsDirs(props.path, password(), forceRoot),
-  )
+
+  const [loading, fetchList] = useFetch(() => {
+    return fsList(props.path, password(), 1, 0, false)
+  })
+
   let isLoaded = false
   const load = async () => {
     if (children()?.length) return
-    const resp = await fetchDirs() // this api may return null
+    const resp = await fetchList()
     handleResp(
       resp,
       (data) => {
         isLoaded = true
-        setChildren(data)
+        // 只保留文件夹类型的项目
+        let filteredDirs = data.content.filter((item) => item.is_dir)
+
+        // 如果不是管理员，才进行权限过滤
+        const userRole = me().role || []
+        const isAdmin = userRole.includes(2)
+
+        if (!isAdmin && permPaths.length > 0) {
+          filteredDirs = filteredDirs.filter((item) => {
+            const fullPath = pathJoin(props.path, item.name)
+            return isPathInPermissions(fullPath, permPaths)
+          })
+        }
+
+        setChildren(filteredDirs)
       },
       () => {
-        if (isOpen()) onToggle() // close folder while failed
+        if (isOpen()) onToggle()
       },
     )
   }
+
   const { isOpen, onToggle } = createDisclosure()
   const active = () => value() === props.path
   const isMatchedFolder = createMatcher(props.path)
+
   const checkIfShouldOpen = async (pathname: string) => {
     if (!autoOpen) return
     if (isMatchedFolder(pathname)) {
@@ -121,9 +175,12 @@ const FolderTreeNode = (props: { path: string }) => {
       if (!isLoaded) load()
     }
   }
+
   createEffect(on(value, checkIfShouldOpen))
+
   const isHiddenFolder = () =>
     isHidePath(props.path) && !isMatchedFolder(value())
+
   return (
     <Show when={showHiddenFolder || !isHiddenFolder()}>
       <Box>
@@ -153,17 +210,15 @@ const FolderTreeNode = (props: { path: string }) => {
           </Show>
           <Text
             css={{
-              // textOverflow: "ellipsis",
               whiteSpace: "nowrap",
             }}
-            // overflow="hidden"
             fontSize="$md"
             cursor="pointer"
             px="$1"
             rounded="$md"
             bgColor={active() ? "$info8" : "transparent"}
             _hover={{
-              bgColor: active() ? "$info8" : hoverColor(),
+              backgroundColor: active() ? "$info8" : hoverColor(),
             }}
             onClick={() => {
               onChange(props.path)
@@ -224,6 +279,7 @@ export const ModalFolderChoose = (props: ModalFolderChooseProps) => {
             onChange={setValue}
             handle={(h) => setHandler(h)}
             autoOpen
+            defaultValue={value()}
           />
         </ModalBody>
         <ModalFooter display="flex" gap="$2">

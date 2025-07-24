@@ -62,12 +62,15 @@ export const ListTitle = (props: {
       <Text w={cols[1].w} {...itemProps(cols[1])}>
         {t(`home.obj.${cols[1].name}`)}
       </Text>
+      <Text w={cols[2].w} {...itemProps(cols[2])}>
+        {t(`home.obj.${cols[2].name}`)}
+      </Text>
       <Text
-        w={cols[2].w}
-        {...itemProps(cols[2])}
+        w={cols[3].w}
+        {...itemProps(cols[3])}
         display={{ "@initial": "none", "@md": "inline" }}
       >
-        {t(`home.obj.${cols[2].name}`)}
+        {t(`home.obj.${cols[3].name}`)}
       </Text>
     </HStack>
   )

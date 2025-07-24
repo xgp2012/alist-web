@@ -7,164 +7,243 @@ import {
   Heading,
   Input,
   VStack,
+  Select,
+  SelectContent,
+  SelectIcon,
+  SelectListbox,
+  SelectOption,
+  SelectOptionIndicator,
+  SelectOptionText,
+  SelectPlaceholder,
+  SelectTrigger,
+  SelectValue,
+  Box,
+  Tag,
+  TagLabel,
+  TagCloseButton,
+  HStack,
 } from "@hope-ui/solid"
 import { MaybeLoading, FolderChooseInput } from "~/components"
 import { useFetch, useRouter, useT } from "~/hooks"
 import { handleResp, notify, r } from "~/utils"
-import { PEmptyResp, PResp, User, UserMethods, UserPermissions } from "~/types"
+import { PEmptyResp, PResp, User } from "~/types"
 import { createStore } from "solid-js/store"
-import { For, Show } from "solid-js"
-import { me, setMe } from "~/store"
+import { For, Show, createSignal } from "solid-js"
+import { me } from "~/store"
 import { PublicKeys } from "./PublicKeys"
-
-const Permission = (props: {
-  can: boolean
-  onChange: (val: boolean) => void
-  name: string
-}) => {
-  const t = useT()
-  return (
-    <FormControl
-      display="inline-flex"
-      flexDirection="row"
-      alignItems="center"
-      gap="$2"
-      rounded="$md"
-      shadow="$md"
-      p="$2"
-      w="fit-content"
-    >
-      <FormLabel mb="0">{t(`users.permissions.${props.name}`)}</FormLabel>
-      <Checkbox
-        checked={props.can}
-        onChange={() => props.onChange(!props.can)}
-      />
-    </FormControl>
-  )
-}
+import { getRoleList } from "~/utils/api"
 
 const AddOrEdit = () => {
   const t = useT()
   const { params, back } = useRouter()
   const { id } = params
+  const [roles, setRoles] = createSignal<{ id: number; name: string }[]>([])
+
   const [user, setUser] = createStore<User>({
     id: 0,
     username: "",
     password: "",
     base_path: "",
-    role: 0,
+    role: [],
     permission: 0,
     disabled: false,
     sso_id: "",
+    role_info: [],
+    permissions: [],
   })
+
+  const [rolesLoading, loadRoles] = useFetch(() => getRoleList())
+
   const [userLoading, loadUser] = useFetch(
     (): PResp<User> => r.get(`/admin/user/get?id=${id}`),
   )
 
-  const initEdit = async () => {
-    const resp = await loadUser()
-    handleResp(resp, setUser)
+  const initData = async () => {
+    // 加载角色列表
+    const rolesResp = await loadRoles()
+    handleResp(rolesResp, (data) => {
+      setRoles(data.content)
+    })
+
+    // 如果是编辑模式，加载用户信息
+    if (id) {
+      const resp = await loadUser()
+      handleResp(resp, setUser)
+    }
   }
-  if (id) {
-    initEdit()
-  }
+
+  initData()
+
   const [okLoading, ok] = useFetch((): PEmptyResp => {
     return r.post(`/admin/user/${id ? "update" : "create"}`, user)
   })
-  return (
-    <MaybeLoading loading={userLoading()}>
-      <VStack w="$full" alignItems="start" spacing="$2">
-        <Heading>{t(`global.${id ? "edit" : "add"}`)}</Heading>
-        <Show when={!UserMethods.is_guest(user)}>
-          <FormControl w="$full" display="flex" flexDirection="column" required>
-            <FormLabel for="username" display="flex" alignItems="center">
-              {t(`users.username`)}
-            </FormLabel>
-            <Input
-              id="username"
-              value={user.username}
-              onInput={(e) => setUser("username", e.currentTarget.value)}
-            />
-          </FormControl>
-          <FormControl w="$full" display="flex" flexDirection="column" required>
-            <FormLabel for="password" display="flex" alignItems="center">
-              {t(`users.password`)}
-            </FormLabel>
-            <Input
-              id="password"
-              type="password"
-              placeholder="********"
-              value={user.password}
-              onInput={(e) => setUser("password", e.currentTarget.value)}
-            />
-          </FormControl>
-        </Show>
 
-        <FormControl w="$full" display="flex" flexDirection="column" required>
-          <FormLabel for="base_path" display="flex" alignItems="center">
-            {t(`users.base_path`)}
-          </FormLabel>
-          <FolderChooseInput
-            id="base_path"
-            value={user.base_path}
-            onChange={(path) => setUser("base_path", path)}
-            onlyFolder
-          />
-        </FormControl>
-        <FormControl w="$full" required>
-          <FormLabel display="flex" alignItems="center">
-            {t(`users.permission`)}
-          </FormLabel>
-          <Flex w="$full" wrap="wrap" gap="$2">
-            <For each={UserPermissions}>
-              {(item, i) => (
-                <Permission
-                  name={item}
-                  can={UserMethods.can(user, i())}
-                  onChange={(val) => {
-                    if (val) {
-                      setUser("permission", (user.permission |= 1 << i()))
-                    } else {
-                      setUser("permission", (user.permission &= ~(1 << i())))
+  return (
+    <VStack spacing="$2" alignItems="start" w="$full">
+      <Heading>{id ? t("global.edit") : t("global.add")}</Heading>
+      <MaybeLoading loading={userLoading() || rolesLoading()}>
+        <VStack spacing="$2" alignItems="start" w="$full">
+          <Show when={!id || !(user.role_info || []).includes(1)}>
+            <FormControl
+              w="$full"
+              display="flex"
+              flexDirection="column"
+              required
+            >
+              <FormLabel for="username" display="flex" alignItems="center">
+                {t(`users.username`)}
+              </FormLabel>
+              <Input
+                id="username"
+                value={user.username}
+                onInput={(e) => setUser("username", e.currentTarget.value)}
+              />
+            </FormControl>
+            <FormControl
+              w="$full"
+              display="flex"
+              flexDirection="column"
+              required
+            >
+              <FormLabel for="password" display="flex" alignItems="center">
+                {t(`users.password`)}
+              </FormLabel>
+              <Input
+                id="password"
+                type="password"
+                placeholder="********"
+                value={user.password}
+                onInput={(e) => setUser("password", e.currentTarget.value)}
+              />
+            </FormControl>
+          </Show>
+
+          <FormControl w="$full" display="flex" flexDirection="column" required>
+            <FormLabel for="base_path" display="flex" alignItems="center">
+              {t(`users.base_path`)}
+            </FormLabel>
+            <FolderChooseInput
+              id="base_path"
+              value={user.base_path}
+              onChange={(path) => setUser("base_path", path)}
+              onlyFolder
+            />
+          </FormControl>
+
+          <FormControl w="$full" display="flex" flexDirection="column" required>
+            <FormLabel display="flex" alignItems="center">
+              {t(`users.role`)}
+            </FormLabel>
+            <Select
+              value={user.role}
+              onChange={(values) => setUser("role", values)}
+            >
+              <SelectTrigger>
+                <Box
+                  display="flex"
+                  flexWrap="wrap"
+                  gap="$2"
+                  pr="$6"
+                  py="$2"
+                  minH="40px"
+                  alignItems="center"
+                >
+                  <Show
+                    when={user.role.length > 0}
+                    fallback={
+                      <SelectPlaceholder>
+                        {t("home.selected")}
+                      </SelectPlaceholder>
                     }
-                  }}
-                />
-              )}
-            </For>
-          </Flex>
-        </FormControl>
-        <FormControl w="fit-content" display="flex">
-          <Checkbox
-            css={{ whiteSpace: "nowrap" }}
-            id="disabled"
-            onChange={(e: any) => setUser("disabled", e.currentTarget.checked)}
-            color="$neutral10"
-            fontSize="$sm"
-            checked={user.disabled}
+                  >
+                    <For each={user.role}>
+                      {(roleId) => {
+                        const role = roles().find((r) => r.id === roleId)
+                        return (
+                          <Tag
+                            size="lg"
+                            variant="subtle"
+                            bgColor="$neutral2"
+                            rounded="$sm"
+                            px="$3"
+                            py="$1"
+                          >
+                            <TagLabel>{role?.name || `ID: ${roleId}`}</TagLabel>
+                            <TagCloseButton
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setUser(
+                                  "role",
+                                  user.role.filter((id) => id !== roleId),
+                                )
+                              }}
+                            />
+                          </Tag>
+                        )
+                      }}
+                    </For>
+                  </Show>
+                </Box>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectListbox>
+                  <For each={roles()}>
+                    {(role) => (
+                      <SelectOption
+                        value={role.id}
+                        onClick={() => {
+                          // 单选逻辑：如果已选中则移除，否则替换为当前选择
+                          const newRoles = user.role.includes(role.id)
+                            ? user.role.filter((id) => id !== role.id)
+                            : [role.id] // 只保留当前选择的角色
+                          setUser("role", newRoles)
+                        }}
+                      >
+                        <HStack spacing="$2" w="$full" pl="$4" fontSize="$lg">
+                          <Checkbox
+                            checked={user.role.includes(role.id)}
+                            readOnly
+                          />
+                          <SelectOptionText>{role.name}</SelectOptionText>
+                        </HStack>
+                      </SelectOption>
+                    )}
+                  </For>
+                </SelectListbox>
+              </SelectContent>
+            </Select>
+          </FormControl>
+
+          <FormControl w="fit-content" display="flex">
+            <Checkbox
+              css={{ whiteSpace: "nowrap" }}
+              id="disabled"
+              onChange={(e: any) =>
+                setUser("disabled", e.currentTarget.checked)
+              }
+              color="$neutral10"
+              fontSize="$sm"
+              checked={user.disabled}
+            >
+              {t(`users.disabled`)}
+            </Checkbox>
+          </FormControl>
+
+          <Button
+            loading={okLoading()}
+            onClick={async () => {
+              const resp = await ok()
+              handleResp(resp, () => {
+                notify.success(t("global.save_success"))
+                back()
+              })
+            }}
           >
-            {t(`users.disabled`)}
-          </Checkbox>
-        </FormControl>
-        <Button
-          loading={okLoading()}
-          onClick={async () => {
-            const resp = await ok()
-            // TODO maybe can use handleRespWithNotifySuccess
-            handleResp(resp, async () => {
-              notify.success(t("global.save_success"))
-              if (user.username === me().username)
-                handleResp(await r.get("/me"), setMe)
-              back()
-            })
-          }}
-        >
-          {t(`global.${id ? "save" : "add"}`)}
-        </Button>
-        <Show when={id && !UserMethods.is_guest(user)}>
-          <PublicKeys isMine={false} userId={parseInt(id)} />
-        </Show>
-      </VStack>
-    </MaybeLoading>
+            {t("global.save")}
+          </Button>
+        </VStack>
+      </MaybeLoading>
+    </VStack>
   )
 }
 
