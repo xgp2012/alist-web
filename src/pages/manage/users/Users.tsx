@@ -30,17 +30,40 @@ import {
 } from "~/types"
 import { DeletePopover } from "../common/DeletePopover"
 import { Wether } from "~/components"
+import { getRoleList } from "~/utils/api"
 
-const Role = (props: { role: number }) => {
-  const roles = [
-    { name: "general", color: "info" },
-    { name: "guest", color: "neutral" },
-    { name: "admin", color: "accent" },
-  ]
+const Role = (props: { role: number[] }) => {
+  const [roles, setRoles] = createSignal<{ id: number; name: string }[]>([])
+
+  const loadRoles = async () => {
+    const resp = await getRoleList()
+    handleResp(resp, (data) => {
+      setRoles(data.content)
+    })
+  }
+  loadRoles()
+
+  const getBadgeColor = (roleId: number) => {
+    switch (roleId) {
+      case 1: // 访客
+        return "neutral"
+      case 2: // 管理员
+        return "success"
+      default:
+        return "info"
+    }
+  }
+
   return (
-    <Badge colorScheme={roles[props.role].color as any}>
-      {roles[props.role].name}
-    </Badge>
+    <HStack spacing="$1">
+      <For each={props.role}>
+        {(role) => (
+          <Badge colorScheme={getBadgeColor(role)}>
+            {roles().find((r) => r.id === role)?.name}
+          </Badge>
+        )}
+      </For>
+    </HStack>
   )
 }
 
@@ -111,7 +134,7 @@ const Users = () => {
                   "username",
                   "base_path",
                   "role",
-                  "permission",
+                  // "permission",
                   "available",
                 ]}
               >
@@ -129,9 +152,9 @@ const Users = () => {
                   <Td>
                     <Role role={user.role} />
                   </Td>
-                  <Td>
+                  {/* <Td>
                     <Permissions user={user} />
-                  </Td>
+                  </Td> */}
                   <Td>
                     <Wether yes={!user.disabled} />
                   </Td>

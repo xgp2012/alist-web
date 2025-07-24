@@ -146,6 +146,8 @@ export const Tasks = (props: TasksProps) => {
   const [retryFailedLoading, retryFailed] = useFetch(
     (): PEmptyResp => r.post(`/task/${props.type}/retry_failed`),
   )
+  console.log("props", props.type)
+
   const [regexFilterValue, setRegexFilterValue] = createSignal("")
   const [regexFilter, setRegexFilter] = createSignal(new RegExp(""))
   const [regexCompileFailed, setRegexCompileFailed] = createSignal(false)

@@ -12,6 +12,7 @@ import {
   me,
   oneChecked,
   selectedObjs,
+  getCurrentPath,
 } from "~/store"
 import { players } from "../previews/video_box"
 import { BsPlayCircleFill } from "solid-icons/bs"
@@ -54,7 +55,7 @@ export const ContextMenu = () => {
           <Item
             hidden={() => {
               const index = UserPermissions.findIndex((item) => item === name)
-              return !UserMethods.can(me(), index)
+              return !UserMethods.can(me(), index, getCurrentPath())
             }}
             onClick={() => {
               bus.emit("tool", name)
@@ -71,7 +72,7 @@ export const ContextMenu = () => {
               (item) => item === "decompress",
             )
             return (
-              !UserMethods.can(me(), index) ||
+              !UserMethods.can(me(), index, getCurrentPath()) ||
               selectedObjs()[0].is_dir ||
               !isArchive(selectedObjs()[0].name)
             )

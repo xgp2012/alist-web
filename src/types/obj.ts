@@ -18,6 +18,10 @@ export interface Obj {
   thumb: string
   type: ObjType
   path: string
+  tags?: string[]
+  id?: string
+  hashinfo?: string
+  children?: Obj[]
 }
 
 export type StoreObj = Obj & {

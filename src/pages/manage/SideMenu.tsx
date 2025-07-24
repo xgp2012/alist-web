@@ -1,5 +1,13 @@
 import { Box, Flex, Heading, HStack, Icon, VStack } from "@hope-ui/solid"
-import { createMemo, createSignal, For, Match, Show, Switch } from "solid-js"
+import {
+  createMemo,
+  createSignal,
+  For,
+  Match,
+  Show,
+  Switch,
+  JSX,
+} from "solid-js"
 import { useRouter, useT } from "~/hooks"
 import { BiSolidRightArrow } from "solid-icons/bi"
 import { onClose } from "./Header"
@@ -13,7 +21,7 @@ import { IconTypes } from "solid-icons"
 export interface SideMenuItemProps {
   title: string
   to: string
-  icon?: IconTypes
+  icon?: IconTypes | ((props: { active?: boolean; style?: any }) => JSX.Element)
   children?: SideMenuItemProps[]
   role?: number
   external?: true
@@ -76,8 +84,16 @@ const SideMenuItemWithTo = (props: SideMenuItemProps) => {
       external={props.external}
       // _active={{ transform: "scale(.95)", transition: "0.1s" }}
     >
-      <Show when={props.icon}>{<Icon mr="$2" as={props.icon} />}</Show>
-      <Heading>{t(props.title)}</Heading>
+      <HStack spacing="$2">
+        <Show when={props.icon}>
+          {typeof props.icon === "function" ? (
+            props.icon({ active: isActive() })
+          ) : (
+            <Icon as={props.icon} />
+          )}
+        </Show>
+        <Heading>{t(props.title)}</Heading>
+      </HStack>
     </AnchorWithBase>
   )
 }
@@ -103,8 +119,14 @@ const SideMenuItemWithChildren = (props: SideMenuItemProps) => {
         rounded="$md"
         cursor="pointer"
       >
-        <HStack>
-          <Show when={props.icon}>{<Icon mr="$2" as={props.icon} />}</Show>
+        <HStack spacing="$2">
+          <Show when={props.icon}>
+            {typeof props.icon === "function" ? (
+              props.icon({ active: false })
+            ) : (
+              <Icon as={props.icon} />
+            )}
+          </Show>
           <Heading>{t(props.title)}</Heading>
         </HStack>
         <Icon

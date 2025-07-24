@@ -88,6 +88,20 @@ export const side_menu_items: SideMenuItem[] = [
         component: lazy(() => import("./settings/S3")),
       },
       {
+        title: "manage.sidemenu.tag",
+        icon: (props: { active?: boolean; style?: any }) => (
+          <img
+            src={
+              props.active ? "/images/tag-active.png" : "/images/tag-gray.png"
+            }
+            alt="search"
+            style={{ width: "1.1em", height: "1.1em", ...(props.style || {}) }}
+          />
+        ),
+        to: "/@manage/settings/tag",
+        component: lazy(() => import("./settings/Tag")),
+      },
+      {
         title: "manage.sidemenu.ftp",
         icon: BsHddNetwork,
         to: "/@manage/settings/ftp",
@@ -153,6 +167,49 @@ export const side_menu_items: SideMenuItem[] = [
         role: UserRole.GENERAL,
         component: lazy(() => import("./tasks/Decompress")),
       },
+    ],
+  },
+  {
+    title: "manage.sidemenu.permissions",
+    icon: (props: { active?: boolean; style?: any }) => (
+      <img
+        src={
+          props.active
+            ? "/images/permissions-active.png"
+            : "/images/permissions-gray.png"
+        }
+        alt="search"
+        style={{ width: "1.2em", height: "1.2em", ...(props.style || {}) }}
+      />
+    ),
+    to: "/@manage/permissions",
+    children: [
+      {
+        title: "manage.sidemenu.role",
+        icon: (props: { active?: boolean; style?: any }) => (
+          <img
+            src={
+              props.active ? "/images/role-active.png" : "/images/role-gray.png"
+            }
+            alt="search"
+            style={{ width: "1.2em", height: "1.2em", ...(props.style || {}) }}
+          />
+        ),
+        to: "/@manage/permissions/role",
+        component: lazy(() => import("./permissions/Role")),
+      },
+      // {
+      //   title: "manage.sidemenu.permissions_config",
+      //   icon: (props: { active?: boolean; style?: any }) => (
+      //     <img
+      //       src={props.active ? "/images/config-active.png" : "/images/config-gray.png"}
+      //       alt="search"
+      //       style={{ width: "1.2em", height: "1.2em", ...(props.style || {}) }}
+      //     />
+      //   ),
+      //   to: "/@manage/permissions/config",
+      //   component: lazy(() => import("./permissions/Config")),
+      // },
     ],
   },
   {

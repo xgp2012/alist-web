@@ -9,8 +9,11 @@ import {
   RenameObj,
   ArchiveMeta,
   ArchiveList,
+  StoreObj,
 } from "~/types"
 import { r } from "."
+import { me } from "~/store"
+import { joinBase, pathJoin } from "~/utils"
 
 export const fsGet = (
   path: string = "/",
@@ -52,11 +55,17 @@ export const fsList = (
 }
 
 export const fsDirs = (
-  path = "/",
+  path: string = "/",
   password = "",
   forceRoot = false,
 ): PResp<Obj[]> => {
-  return r.post("/fs/dirs", { path, password, force_root: forceRoot })
+  // 如果是强制根目录，使用原始路径，否则使用当前访问路径作为根节点
+  const finalPath = path
+  return r.post("/fs/dirs", {
+    path: finalPath,
+    password,
+    force_root: forceRoot,
+  })
 }
 
 export const fsMkdir = (path: string): PEmptyResp => {
@@ -262,4 +271,143 @@ export const updateIndex = async (paths = [], max_depth = -1): PEmptyResp => {
     paths,
     max_depth,
   })
+}
+
+export const getLabelList = (): PResp<any> => {
+  return r.get("/admin/label/list")
+}
+
+export const createLabel = (
+  name: string,
+  description: string,
+  bg_color: string,
+): PEmptyResp => {
+  return r.post("/admin/label/create", { name, description, bg_color })
+}
+
+export const updateLabel = (
+  id: number,
+  name: string,
+  description: string,
+  bg_color: string,
+): PEmptyResp => {
+  return r.post("/admin/label/update", { id, name, description, bg_color })
+}
+
+export const getLabelDetail = (id: number): PResp<any> => {
+  return r.get(`/admin/label/get?id=${id}`)
+}
+
+export const getFilesByLabel = (label_id: number): PResp<any> => {
+  return r.get(
+    `/admin/label_file_binding/get_file_by_label?label_id=${label_id}`,
+  )
+}
+
+export const createLabelFileBinding = (
+  label_ids: string,
+  obj: StoreObj & Obj,
+): PEmptyResp => {
+  return r.post("/admin/label_file_binding/create", {
+    label_ids,
+    name: obj.name,
+    id: obj.id,
+    path: obj.path,
+    size: obj.size,
+    is_dir: obj.is_dir,
+    modified: obj.modified,
+    created: obj.created,
+    sign: obj.sign,
+    thumb: obj.thumb,
+    type: obj.type,
+    hashinfo: obj.hashinfo,
+  })
+}
+
+export const getLabelFileBinding = (file_name?: string): PResp<any> => {
+  return r.post("/admin/label_file_binding/get", { file_name })
+}
+
+export const getRoleList = (): PResp<any> => {
+  return r.get("/admin/role/list")
+}
+
+export interface Role {
+  id: number
+  name: string
+  description: string
+  permission_scopes: {
+    path: string
+    permission: number
+  }[]
+}
+
+export const getRoleDetail = (id: number): PResp<Role> => {
+  return r.get(`/admin/role/get`, { params: { id } })
+}
+
+export interface Permission {
+  id: number
+  name: string
+  description: string
+  permission: number
+  path_pattern: string
+  allow_op: string[]
+  allow_op_info: null
+  created_at: string
+  updated_at: string
+}
+
+export const getPermissionDetail = (id: number): PResp<Permission> => {
+  return r.get(`/permission/${id}`)
+}
+
+interface PermissionResponse {
+  content: Permission[]
+}
+
+export const getPermissionList = (): PResp<PermissionResponse> => {
+  return r.get("/permission")
+}
+
+interface PermissionRequest {
+  id?: number
+  name: string
+  description: string
+  path_pattern: string
+  permission: number
+}
+
+export const createPermission = (data: PermissionRequest): PEmptyResp => {
+  return r.post("/permission", data)
+}
+
+export const updatePermission = (data: PermissionRequest): PEmptyResp => {
+  return r.put("/permission", data)
+}
+
+export const deletePermission = (id: number): PEmptyResp => {
+  return r.delete(`/permission/${id}`)
+}
+
+interface RoleRequest {
+  id?: number
+  name: string
+  description: string
+  permission_scopes: {
+    path: string
+    permission: number
+  }[]
+}
+
+export const createRole = (data: RoleRequest): PEmptyResp => {
+  return r.post("/admin/role/create", data)
+}
+
+export const updateRole = (data: RoleRequest): PEmptyResp => {
+  return r.post("/admin/role/update", data)
+}
+
+export const deleteRole = (id: number): PEmptyResp => {
+  return r.post(`/admin/role/delete?id=${id}`)
 }

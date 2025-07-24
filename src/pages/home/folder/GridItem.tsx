@@ -1,16 +1,23 @@
-import { Center, VStack, Icon, Text } from "@hope-ui/solid"
+import { Box, Center, HStack, Icon, Text, VStack } from "@hope-ui/solid"
 import { Motion } from "@motionone/solid"
 import { useContextMenu } from "solid-contextmenu"
 import { batch, Show } from "solid-js"
 import { CenterLoading, LinkWithPush, ImageWithError } from "~/components"
 import { usePath, useRouter, useUtil } from "~/hooks"
-import { checkboxOpen, getMainColor, local, selectIndex } from "~/store"
-import { ObjType, StoreObj } from "~/types"
+import {
+  checkboxOpen,
+  getMainColor,
+  local,
+  selectIndex,
+  StoreObj,
+} from "~/store"
+import { Obj, ObjType } from "~/types"
 import { bus, hoverColor } from "~/utils"
 import { getIconByObj } from "~/utils/icon"
 import { ItemCheckbox, useSelectWithMouse } from "./helper"
+import { pathJoin } from "~/utils/path"
 
-export const GridItem = (props: { obj: StoreObj; index: number }) => {
+export const GridItem = (props: { obj: StoreObj & Obj; index: number }) => {
   const { isHide } = useUtil()
   if (isHide(props.obj)) {
     return null
@@ -24,9 +31,15 @@ export const GridItem = (props: { obj: StoreObj; index: number }) => {
     />
   )
   const { show } = useContextMenu({ id: 1 })
-  const { pushHref, to } = useRouter()
+  const { pushHref, to, pathname } = useRouter()
   const { openWithDoubleClick, toggleWithClick, restoreSelectionCache } =
     useSelectWithMouse()
+
+  // 构建完整路径
+  const getFullPath = () => {
+    return pathJoin(pathname(), props.obj.name)
+  }
+
   return (
     <Motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -58,7 +71,7 @@ export const GridItem = (props: { obj: StoreObj; index: number }) => {
         on:dblclick={() => {
           if (!openWithDoubleClick()) return
           selectIndex(props.index, true, true)
-          to(pushHref(props.obj.name))
+          to(getFullPath())
         }}
         on:click={(e: MouseEvent) => {
           e.preventDefault()
@@ -67,7 +80,7 @@ export const GridItem = (props: { obj: StoreObj; index: number }) => {
           if (!restoreSelectionCache()) return
           if (toggleWithClick())
             return selectIndex(props.index, !props.obj.selected)
-          to(pushHref(props.obj.name))
+          to(getFullPath())
         }}
         onMouseEnter={() => {
           setPathAs(props.obj.name, props.obj.is_dir, true)

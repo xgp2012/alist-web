@@ -3,7 +3,7 @@ import { cookieStorage, createStorageSignal } from "@solid-primitives/storage"
 import { createMemo, createSignal } from "solid-js"
 import { createStore, produce } from "solid-js/store"
 import { Obj, StoreObj } from "~/types"
-import { bus, log } from "~/utils"
+import { bus, log, trimBase } from "~/utils"
 import { keyPressed } from "./key-event"
 import { local } from "./local_settings"
 
@@ -203,6 +203,11 @@ const layoutRecord: Record<string, LayoutType> = (() => {
 })()
 
 bus.on("pathname", (p) => setPathname(p))
+
+export const getCurrentPath = () => {
+  return trimBase(pathname())
+}
+
 const [_layout, _setLayout] = createSignal<LayoutType>(
   layoutRecord[pathname()] || local["global_default_layout"],
 )
