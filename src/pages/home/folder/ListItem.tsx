@@ -33,6 +33,7 @@ import AddLabelDialog from "~/components/AddLabelDialog"
 import EditLabelDialog from "~/components/EditLabelDialog"
 import { getColorWithOpacity } from "~/utils/color"
 import { pathJoin } from "~/utils/path"
+import { createLabelFileBinding } from "~/utils/api"
 
 interface Label {
   id: number
@@ -90,6 +91,7 @@ const SelectionStats = () => {
 
 export const ListItem = (props: { obj: StoreObj & Obj; index: number }) => {
   const { isHide } = useUtil()
+  const { refresh } = usePath()
   if (isHide(props.obj)) {
     return null
   }
@@ -131,12 +133,32 @@ export const ListItem = (props: { obj: StoreObj & Obj; index: number }) => {
     })
   })
 
-  const handleAddLabel = (
+  const handleAddLabel = async (
     name: string,
     description: string,
     bg_color: string,
   ) => {
-    // TODO: 处理添加标签的逻辑
+    try {
+      // 获取最新的标签列表
+      const labelData = await refetch()
+      if (labelData?.data?.content) {
+        // 找到刚刚创建的标签
+        const newLabel = labelData.data.content.find(
+          (label: Label) =>
+            label.name === name &&
+            label.description === description &&
+            label.bg_color === bg_color,
+        )
+        if (newLabel) {
+          // 创建标签文件绑定
+          await createLabelFileBinding(newLabel.id.toString(), props.obj)
+          // 强制刷新当前目录
+          await refresh(false, true)
+        }
+      }
+    } catch (err) {
+      console.error("Failed to bind label to file:", err)
+    }
   }
 
   const handleEditLabel = (selectedLabels: string[]) => {

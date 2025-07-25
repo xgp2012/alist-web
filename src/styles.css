@@ -1,19 +1,23 @@
-.hope-checkbox {
-  cursor: default !important;
+.hope-select__option .hope-checkbox,
+.folder-tree-box .hope-checkbox {
+  cursor: not-allowed !important;
   pointer-events: none !important;
 }
 
-.hope-checkbox * {
-  cursor: default !important;
+.hope-select__option .hope-checkbox *,
+.folder-tree-box .hope-checkbox * {
+  cursor: not-allowed !important;
   pointer-events: none !important;
 }
 
-.hope-checkbox__control {
-  cursor: default !important;
+.hope-select__option .hope-checkbox__control,
+.folder-tree-box .hope-checkbox__control {
+  cursor: not-allowed !important;
   pointer-events: none !important;
 }
 
-.hope-checkbox__input {
-  cursor: default !important;
+.hope-select__option .hope-checkbox__input,
+.folder-tree-box .hope-checkbox__input {
+  cursor: not-allowed !important;
   pointer-events: none !important;
 }

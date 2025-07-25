@@ -47,7 +47,6 @@ const AddLabelDialog = (props: AddLabelDialogProps) => {
   const [loading, setLoading] = createSignal(false)
   const [selectedColor, setSelectedColor] = createSignal(LABEL_COLORS[0])
   const [relatedFiles, setRelatedFiles] = createSignal<(StoreObj & Obj)[]>([])
-  console.log(relatedFiles(), "relatedFiles")
 
   createEffect(() => {
     if (props.editingLabel) {
