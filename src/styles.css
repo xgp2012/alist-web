@@ -1,15 +1,19 @@
 .hope-checkbox {
   cursor: default !important;
+  pointer-events: none !important;
 }
 
 .hope-checkbox * {
   cursor: default !important;
+  pointer-events: none !important;
 }
 
 .hope-checkbox__control {
   cursor: default !important;
+  pointer-events: none !important;
 }
 
 .hope-checkbox__input {
   cursor: default !important;
+  pointer-events: none !important;
 }

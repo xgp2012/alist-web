@@ -46,6 +46,7 @@ export const usePath = () => {
   // 统一的路径处理函数
   const getProcessedPath = (path: string): string => {
     // 如果路径已经包含了权限路径，直接返回
+
     const userPermissions = me().permissions || []
     for (const perm of userPermissions) {
       if (path.startsWith(perm.path)) {
@@ -80,6 +81,7 @@ export const usePath = () => {
       return pathJoin(userPermissions[0].path, path)
     }
 
+    alert(path)
     return path
   }
 
@@ -107,6 +109,7 @@ export const usePath = () => {
         index: arg?.index,
         size: arg?.size,
       }
+      console.log("getObjs", arg?.path)
       const processedPath = getProcessedPath(arg?.path || "/")
       console.log(
         "fsList processedPath:",
@@ -155,8 +158,8 @@ export const usePath = () => {
     retry_pass = rp ?? false
     ObjStore.setErr("")
 
-    // 如果是初始状态，检查权限路径
-    if (!force && first_fetch) {
+    // 如果是初始状态且当前路径是根路径，检查权限路径
+    if (!force && first_fetch && path === "/") {
       first_fetch = false
       const userPermissions = me().permissions || []
       // 如果有权限路径是"/"，直接获取文件列表
@@ -187,13 +190,22 @@ export const usePath = () => {
       return Promise.resolve()
     }
 
+    // 如果不是首次加载，或者当前路径不是根路径，正常处理路径
+    if (first_fetch) {
+      first_fetch = false
+    }
+
     if (hasHistory(path, index)) {
-      log(`handle [${getHistoryKey(path, index)}] from history`)
       return recoverHistory(path, index)
     }
 
-    // 直接调用handleFolder，让后端来判断是文件还是目录
-    return handleFolder(path, index, undefined, undefined, force)
+    // 检查路径是否已知为目录
+    if (IsDirRecord[path]) {
+      return handleFolder(path, index, undefined, undefined, force)
+    }
+
+    // 如果不知道是文件还是目录，先调用fsget接口判断
+    return handleObj(path, index)
   }
 
   // handle enter obj that don't know if it is dir or file
@@ -250,14 +262,9 @@ export const usePath = () => {
         ObjStore.setHeader(data.header)
         ObjStore.setWrite(data.write)
         ObjStore.setProvider(data.provider)
-        // 如果返回的是单个文件对象，说明是文件
-        if (data.content?.length === 1 && !data.content[0].is_dir) {
-          ObjStore.setObj(data.content[0])
-          ObjStore.setState(State.File)
-        } else {
-          setPathAs(path)
-          ObjStore.setState(State.Folder)
-        }
+        // 设置路径为目录
+        setPathAs(path)
+        ObjStore.setState(State.Folder)
       },
       handleErr,
     )
@@ -288,6 +295,16 @@ export const usePath = () => {
         to("/")
         return
       }
+    }
+
+    // 如果是存储未找到错误
+    if (
+      msg.includes("storage not found") ||
+      msg.includes("please add a storage")
+    ) {
+      ObjStore.setErr(msg)
+      ObjStore.setState(State.Initial)
+      return
     }
 
     // 获取当前访问的路径

@@ -18,6 +18,7 @@
   "no": "No",
   "clear": "Clear",
   "choose_folder": "Select folder",
+  "please_click_to_select": "Please click the text to select",
   "choose_or_input_path": "Select folder or input path",
   "disable": "Disable",
   "enable": "Enable",
@@ -30,5 +31,6 @@
   "empty_input": "Please enter",
   "name": "Name",
   "refresh_success": "Refresh successfully",
-  "refresh_failed": "Refresh failed"
+  "refresh_failed": "Refresh failed",
+  "required": "required"
 }

@@ -15,11 +15,15 @@ import {
   SelectTrigger,
   SelectValue,
   Icon,
+  Button,
+  VStack,
+  Text,
 } from "@hope-ui/solid"
 import { SwitchColorMode } from "./SwitchColorMode"
 import { ComponentProps, For, mergeProps, Show } from "solid-js"
 import { AiOutlineFullscreen, AiOutlineFullscreenExit } from "solid-icons/ai"
 import { hoverColor } from "~/utils"
+import { useRouter, useT } from "~/hooks"
 
 export const Error = (props: {
   msg: string
@@ -32,6 +36,22 @@ export const Error = (props: {
     },
     props,
   )
+
+  const { to } = useRouter()
+  const t = useT()
+
+  // 检查是否是存储错误
+  const isStorageError = () => {
+    return (
+      props.msg.includes("storage not found") ||
+      props.msg.includes("please add a storage")
+    )
+  }
+
+  const handleGoToStorages = () => {
+    to("/@manage/storages")
+  }
+
   return (
     <Center h={merged.h} p="$2" flexDirection="column">
       <Box
@@ -40,18 +60,27 @@ export const Error = (props: {
         py="$6"
         bgColor={useColorModeValue("white", "$neutral3")()}
       >
-        <Heading
-          css={{
-            wordBreak: "break-all",
-          }}
-        >
-          {props.msg}
-        </Heading>
-        <Show when={!props.disableColor}>
-          <Flex mt="$2" justifyContent="end">
-            <SwitchColorMode />
-          </Flex>
-        </Show>
+        <VStack spacing="$4" textAlign="center">
+          <Heading
+            css={{
+              wordBreak: "break-all",
+            }}
+          >
+            {props.msg}
+          </Heading>
+
+          <Show when={isStorageError()}>
+            <Button onClick={handleGoToStorages} size="md">
+              {t("home.go_to_storages")}
+            </Button>
+          </Show>
+
+          <Show when={!props.disableColor}>
+            <Flex mt="$2" justifyContent="end">
+              <SwitchColorMode />
+            </Flex>
+          </Show>
+        </VStack>
       </Box>
     </Center>
   )

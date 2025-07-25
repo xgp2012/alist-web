@@ -22,12 +22,13 @@ import {
   selectedObjs,
 } from "~/store"
 import { ObjType, StoreObj, Obj } from "~/types"
-import { bus, formatDate, getFileSize, hoverColor, getLabelList } from "~/utils"
+import { bus, formatDate, getFileSize, hoverColor } from "~/utils"
 import { getIconByObj } from "~/utils/icon"
 import { ItemCheckbox, useSelectWithMouse } from "./helper"
 import { BsPlus } from "solid-icons/bs"
 import { UserMethods } from "~/types"
 import { me } from "~/store"
+import { useLabels } from "~/store/label"
 import AddLabelDialog from "~/components/AddLabelDialog"
 import EditLabelDialog from "~/components/EditLabelDialog"
 import { getColorWithOpacity } from "~/utils/color"
@@ -103,18 +104,20 @@ export const ListItem = (props: { obj: StoreObj & Obj; index: number }) => {
   const getFullPath = () => {
     // 如果obj.path存在且是完整路径（以权限路径开头），直接使用
     const userPermissions = me().permissions || []
-    if (
-      props.obj.path &&
-      userPermissions.some((perm) => props.obj.path?.startsWith(perm.path))
-    ) {
-      return props.obj.path
-    }
+
+    // if (
+    //   props.obj.path &&
+    //   userPermissions.some((perm) => props.obj.path?.startsWith(perm.path))
+    // ) {
+    //   return props.obj.path
+    // }
     // 否则使用当前路径
+
     return pathJoin(pathname(), props.obj.name)
   }
 
-  // 获取所有标签列表，用于判断显示添加还是编辑按钮
-  const [labels, { refetch }] = createResource(getLabelList)
+  // 使用全局标签列表
+  const { labels, refetch } = useLabels()
   const [isAddLabelOpen, setIsAddLabelOpen] = createSignal(false)
   const [isEditLabelOpen, setIsEditLabelOpen] = createSignal(false)
 
@@ -134,7 +137,6 @@ export const ListItem = (props: { obj: StoreObj & Obj; index: number }) => {
     bg_color: string,
   ) => {
     // TODO: 处理添加标签的逻辑
-    console.log("添加标签:", name, description, bg_color)
   }
 
   const handleEditLabel = (selectedLabels: string[]) => {
@@ -295,7 +297,8 @@ export const ListItem = (props: { obj: StoreObj & Obj; index: number }) => {
                 onClick={(e: MouseEvent) => {
                   e.preventDefault()
                   e.stopPropagation()
-                  if (labels()?.data?.content?.length) {
+                  const labelData = labels()
+                  if (labelData?.data?.content?.length) {
                     setIsEditLabelOpen(true)
                   } else {
                     setIsAddLabelOpen(true)

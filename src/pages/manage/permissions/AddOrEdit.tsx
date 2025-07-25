@@ -217,27 +217,17 @@ const AddOrEdit = () => {
   })
 
   const validateForm = () => {
-    if (!role.name.trim()) {
-      notify.error(t("permissions.role.role_name") + t("global.required"))
-      return false
-    }
-    if (!role.base_path || role.base_path.length === 0) {
-      notify.error(t("users.base_path") + t("global.required"))
-      return false
-    }
-    if (role.permission_scopes.length === 0) {
-      notify.error(
-        t("permissions.role.role_permissions") + t("global.required"),
-      )
+    if (role.base_path.length === 0 || role.name.length === 0) {
+      notify.error(t("users.base_path") + " " + t("global.required"))
       return false
     }
     return true
   }
 
   const [okLoading, ok] = useFetch(async () => {
-    // if (!validateForm()) {
-    //     return Promise.reject(new Error("Form validation failed"))
-    // }
+    if (!validateForm()) {
+      return Promise.reject(new Error("Form validation failed"))
+    }
 
     // 计算合并的权限值
     const combinedPermissions = UserPermissions.reduce((acc, _, index) => {
@@ -365,7 +355,7 @@ const AddOrEdit = () => {
               autoOpen={!!id}
             />
           </FormControl>
-          <FormControl required>
+          <FormControl>
             <FormLabel>
               {t("permissions.config.permissions_permissions")}
             </FormLabel>

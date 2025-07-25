@@ -218,6 +218,7 @@ export const layout = () => {
 }
 export const setLayout = (layout: LayoutType) => {
   layoutRecord[pathname()] = layout
+  console.log("setLayout", layoutRecord)
   localStorage.setItem("layoutRecord", JSON.stringify(layoutRecord))
   _setLayout(layout)
 }

@@ -118,7 +118,7 @@ const AddOrEdit = () => {
             </FormControl>
           </Show>
 
-          <FormControl w="$full" display="flex" flexDirection="column" required>
+          {/* <FormControl w="$full" display="flex" flexDirection="column" required>
             <FormLabel for="base_path" display="flex" alignItems="center">
               {t(`users.base_path`)}
             </FormLabel>
@@ -128,7 +128,7 @@ const AddOrEdit = () => {
               onChange={(path) => setUser("base_path", path)}
               onlyFolder
             />
-          </FormControl>
+          </FormControl> */}
 
           <FormControl w="$full" display="flex" flexDirection="column" required>
             <FormLabel display="flex" alignItems="center">

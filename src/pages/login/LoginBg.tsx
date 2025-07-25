@@ -6,7 +6,12 @@ const LoginBg = () => {
   const bgColor = useColorModeValue("#a9c6ff", "#062b74")
   return (
     <Box
-      bgColor={bgColor()}
+      // bgColor={bgColor()}
+      style={{
+        "background-image": "url(/images/new_bg.png)",
+        "background-size": "cover",
+        "background-position": "center",
+      }}
       pos="fixed"
       top="0"
       left="0"
@@ -26,7 +31,7 @@ const LoginBg = () => {
           "@sm": "-900px",
         }}
       >
-        <CornerTop />
+        {/* <CornerTop /> */}
       </Box>
       <Box
         pos="absolute"
@@ -39,7 +44,7 @@ const LoginBg = () => {
           "@sm": "-400px",
         }}
       >
-        <CornerBottom />
+        {/* <CornerBottom /> */}
       </Box>
     </Box>
   )

@@ -1,25 +1,17 @@
+import { Box, Button, HStack, VStack } from "@hope-ui/solid"
+import { createResource, createSignal, For } from "solid-js"
 import { useT } from "~/hooks"
-import {
-  HStack,
-  Button,
-  VStack,
-  Box,
-  Table,
-  Thead,
-  Tr,
-  Th,
-  Td,
-  Tbody,
-  Badge,
-} from "@hope-ui/solid"
-import { For, createResource, createSignal } from "solid-js"
+import { notify, handleResp } from "~/utils"
+import { Badge, Table, Tbody, Td, Th, Thead, Tr } from "@hope-ui/solid"
 import { getLabelList, getLabelDetail } from "~/utils"
-import { Resp, PEmptyResp } from "~/types"
-import { DeletePopover } from "~/pages/manage/common/DeletePopover"
-import { handleResp, notify, r, formatDate } from "~/utils"
+import { r } from "~/utils"
+import { PEmptyResp } from "~/types"
 import { useListFetch } from "~/hooks"
-import AddLabelDialog from "~/components/AddLabelDialog"
+import { formatDate } from "~/utils"
 import { getColorWithOpacity } from "~/utils/color"
+import { DeletePopover } from "~/pages/manage/common/DeletePopover"
+import AddLabelDialog from "~/components/AddLabelDialog"
+import { useLabels } from "~/store/label"
 
 interface Label {
   id: number
@@ -36,8 +28,8 @@ interface ListResp<T> {
 
 const TagSettings = () => {
   const t = useT()
-  const [labels, { refetch }] =
-    createResource<Resp<ListResp<Label>>>(getLabelList)
+  // 使用全局标签列表
+  const { labels, refetch } = useLabels()
   const [refreshing, setRefreshing] = createSignal(false)
   const [isAddLabelOpen, setIsAddLabelOpen] = createSignal(false)
   const [editingLabel, setEditingLabel] = createSignal<Label | null>(null)
