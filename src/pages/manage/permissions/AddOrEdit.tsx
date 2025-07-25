@@ -225,10 +225,6 @@ const AddOrEdit = () => {
   }
 
   const [okLoading, ok] = useFetch(async () => {
-    if (!validateForm()) {
-      return Promise.reject(new Error("Form validation failed"))
-    }
-
     // 计算合并的权限值
     const combinedPermissions = UserPermissions.reduce((acc, _, index) => {
       if (((currentPermission() >> index) & 1) === 1) {
@@ -444,6 +440,9 @@ const AddOrEdit = () => {
             <Button
               loading={okLoading()}
               onClick={async () => {
+                if (!validateForm()) {
+                  return
+                }
                 const resp = await ok()
                 handleResp(resp, () => {
                   notify.success(t("global.save_success"))
