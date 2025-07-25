@@ -293,6 +293,12 @@ const Login = () => {
                 _focus={{
                   border: "none",
                   boxShadow: "none",
+                  bgColor: "transparent",
+                }}
+                _hover={{
+                  border: "none",
+                  boxShadow: "none",
+                  bgColor: "transparent",
                 }}
                 flex={1}
               />
@@ -329,6 +335,12 @@ const Login = () => {
                   _focus={{
                     border: "none",
                     boxShadow: "none",
+                    bgColor: "transparent",
+                  }}
+                  _hover={{
+                    border: "none",
+                    boxShadow: "none",
+                    bgColor: "transparent",
                   }}
                   flex={1}
                 />
