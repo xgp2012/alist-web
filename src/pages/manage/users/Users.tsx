@@ -132,7 +132,7 @@ const Users = () => {
               <For
                 each={[
                   "username",
-                  "base_path",
+                  // "base_path",
                   "role",
                   // "permission",
                   "available",
@@ -148,7 +148,7 @@ const Users = () => {
               {(user) => (
                 <Tr>
                   <Td>{user.username}</Td>
-                  <Td>{user.base_path}</Td>
+                  {/* <Td>{user.base_path}</Td> */}
                   <Td>
                     <Role role={user.role} />
                   </Td>

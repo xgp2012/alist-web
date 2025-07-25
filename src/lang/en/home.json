@@ -46,6 +46,7 @@
   "selected": "Selected",
   "selected_count": "item",
   "total_size": "Total size:",
+  "go_to_storages": "Go to storages",
   "toolbar": {
     "more": "More",
     "refresh": "Refresh",

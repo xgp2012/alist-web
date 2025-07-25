@@ -818,20 +818,29 @@ export const ChooseTree = (props: ChooseTreeProps) => {
         <Input
           id={props.id}
           readOnly={true}
-          onClick={onOpen}
           h="44px"
           pl="$4"
+          pointerEvents="none"
+          _focus={{
+            border: "none",
+            boxShadow: "none",
+          }}
         />
         <Box
           position="absolute"
-          top="50%"
-          left="$4"
-          transform="translateY(-50%)"
+          top="0"
+          left="0"
+          right="0"
+          bottom="0"
           display="flex"
           alignItems="center"
           flexWrap="wrap"
           gap="$2"
           maxW="90%"
+          pl="$4"
+          cursor="pointer"
+          onClick={onOpen}
+          zIndex={1}
         >
           <Show
             when={displaySelectedPaths().length > 0}
@@ -908,7 +917,14 @@ export const ChooseTree = (props: ChooseTreeProps) => {
         <ModalOverlay />
         <ModalContent>
           <ModalCloseButton />
-          <ModalHeader>{t("global.choose_folder")}</ModalHeader>
+          <ModalHeader>
+            <HStack spacing="$2" alignItems="center">
+              <Text fontWeight="bold">{t("global.choose_folder")}</Text>
+              <Text fontSize="$sm">
+                （{t("global.please_click_to_select")}）
+              </Text>
+            </HStack>
+          </ModalHeader>
           <ModalBody>
             <context.Provider
               value={{

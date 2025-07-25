@@ -7,7 +7,7 @@ import {
   _mergeSearchString,
 } from "@solidjs/router"
 import { createMemo, untrack } from "solid-js"
-import { encodePath, joinBase, log, pathDir, pathJoin, trimBase } from "~/utils"
+import { encodePath, joinBase, pathDir, pathJoin, trimBase } from "~/utils"
 import { clearHistory } from "~/store"
 import { me } from "~/store"
 
@@ -27,7 +27,6 @@ const useRouter = () => {
       if (!ignore_root && path.startsWith("/")) {
         path = joinBase(path)
       }
-      log("to:", path)
       clearHistory(decodeURIComponent(path))
       navigate(path, options)
     },

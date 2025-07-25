@@ -78,6 +78,8 @@ const Preview = () => {
         const i = ap.list.index
         if (!ap.list.audios[i].lrc) return
         const lrcURL = ap.list.audios[i].lrc
+        console.log("lrcURL", lrcURL)
+
         fsGet(lrcURL).then((resp) => {
           ap.lrc.async = true
           ap.lrc.parsed[i] = undefined

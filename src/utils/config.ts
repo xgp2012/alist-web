@@ -10,6 +10,8 @@ export const setBasePath = (path: string) => {
     base_path = base_path.slice(0, -1)
   }
 }
+console.log("base_path", base_path)
+console.log("window.ALIST.base_path", window.ALIST.base_path)
 if (window.ALIST.base_path) {
   setBasePath(window.ALIST.base_path)
 }
